@@ -1,0 +1,52 @@
+version: "3.5"
+
+services:
+  load_balancer:
+    image: shashwot/nginx-more
+    restart: always
+    links:
+      - worker_uk
+      - worker_other
+      - worker_us_1
+      - worker_us_2
+      - worker_backup
+    ports:
+      - "127.0.0.1:8000:80"
+    volumes:
+      - "./etc/load_balancer/default.conf:/etc/nginx/nginx.conf"
+      - "./etc/load_balancer/GeoLite2-Country.mmdb:/var/lib/GeoIP/GeoLite2-Country.mmdb"
+
+  worker_uk:
+    image: nginx:alpine
+    restart: always
+    volumes:
+      - "./etc/worker/default.conf:/etc/nginx/conf.d/default.conf"
+      - "./web/index_uk.html:/var/www/html/public/index.html"
+
+  worker_us_1:
+    image: nginx:alpine
+    restart: always
+    volumes:
+      - "./etc/worker/default.conf:/etc/nginx/conf.d/default.conf"
+      - "./web/index_us_1.html:/var/www/html/public/index.html"
+
+  worker_us_2:
+    image: nginx:alpine
+    restart: always
+    volumes:
+      - "./etc/worker/default.conf:/etc/nginx/conf.d/default.conf"
+      - "./web/index_us_2.html:/var/www/html/public/index.html"
+
+  worker_other:
+    image: nginx:alpine
+    restart: always
+    volumes:
+      - "./etc/worker/default.conf:/etc/nginx/conf.d/default.conf"
+      - "./web/index_other.html:/var/www/html/public/index.html"
+
+  worker_backup:
+    image: nginx:alpine
+    restart: always
+    volumes:
+      - "./etc/worker/default.conf:/etc/nginx/conf.d/default.conf"
+      - "./web/index_backup.html:/var/www/html/public/index.html"
